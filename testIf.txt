@@ -1,0 +1,7 @@
+{
+    int a;
+    a=5;
+    if(a==3) a=5;
+    else if(a==5) a=3;
+    debug a;
+}

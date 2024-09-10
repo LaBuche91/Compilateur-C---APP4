@@ -7,6 +7,10 @@
 
 using namespace std;
 
+static int nbLabel = 0;
+//variable globale pour les labels
+static int labelBoucles = 0;
+
 // énumération des type de Node
 enum NodeType
 {
@@ -32,7 +36,12 @@ enum NodeType
     Nd_drop = 20,
     Nd_ref = 21,
     Nd_declaration = 22,
-    Nd_int = 23
+    Nd_int = 23,
+    Nd_cond = 24,
+    Nd_loop = 25, //execute les instructions à l'infini
+    Nd_break = 26,//sort de la loop
+    Nd_continue = 27,//continue la loop
+    Nd_ancre = 28, //sert revenir a un noeud lors d'un continue dans une boucle
 };
 
 map<int, string> NodeNames = {
@@ -171,6 +180,9 @@ Node *CreerNode(int type);
 Node *CreerNode(int type, string valeur);
 Node *CreerNode(int type, string valeur, Node *enfant);
 Node *CreerNode(int type, Node *enfant, Node *enfant2);
+Node *CreerNode(int type, string valeur, Node *enfant, Node *enfant2);
+Node *CreerNode(int type, string valeur, Node *enfant, Node *enfant2, Node *enfant3);
+Node *CreerNode(int type, string valeur, Node *enfant, Node *enfant2, Node *enfant3, Node *enfant4);
 void AjouterEnfant(Node *N, Node *enfant);
 
 // trouver le type de l'expression selon le token
@@ -264,6 +276,29 @@ Node *CreerNode(int type, string valeur, Node *enfant, Node *enfant2)
     return N;
 };
 
+Node *CreerNode(int type, string valeur, Node *enfant, Node *enfant2, Node *enfant3)
+{
+    Node *N = new Node;
+    N->type = type;
+    N->valeur = valeur;
+    AjouterEnfant(N, enfant);
+    AjouterEnfant(N, enfant2);
+    AjouterEnfant(N, enfant3);
+    return N;
+};
+
+Node *CreerNode(int type, string valeur, Node *enfant, Node *enfant2, Node *enfant3, Node *enfant4)
+{
+    Node *N = new Node;
+    N->type = type;
+    N->valeur = valeur;
+    AjouterEnfant(N, enfant);
+    AjouterEnfant(N, enfant2);
+    AjouterEnfant(N, enfant3);
+    AjouterEnfant(N, enfant4);
+    return N;
+};
+
 void AjouterEnfant(Node *N, Node *enfant)
 {
     N->enfants.push_back(enfant);
@@ -308,6 +343,42 @@ void genCode(Node *N)
             cout << "  push 0" << endl;
             genCode(N->enfants[0]);
             cout << "  sub" << endl;
+            break;
+        case Nd_cond:
+        {
+            genCode(N->enfants[0]);
+            cout << "  jumpf l1_"<<nbLabel << endl;
+            genCode(N->enfants[1]);
+            cout << "  jump l2_"<<nbLabel << endl;
+            cout << ".l1_"<<nbLabel << endl;
+            int tmp = nbLabel++;
+            if(N->Nenfants >= 3) genCode(N->enfants[2]);//problème ici
+            cout << ".l2_"<<tmp<< endl; 
+            break;
+        }
+        case Nd_loop:
+        {
+            int l = nbLabel++;
+            int tmp = labelBoucles;
+            labelBoucles = l;
+            cout << ".l1_"<<l<< endl;
+            for (int i = 0; i < N->Nenfants; i++)
+            {
+                genCode(N->enfants[i]);
+            }
+            cout << "  jump l1_"<<l << endl;
+            cout<<".l2_"<<l<<endl;
+            labelBoucles = tmp;
+            break;
+        }
+        case Nd_break:
+            cout << "  jump l2_"<<labelBoucles<< endl;
+            break;
+        case Nd_ancre:
+            cout << ".l3_"<<labelBoucles<< endl;
+            break;
+        case Nd_continue:
+            cout << "  jump l3_"<<labelBoucles<< endl;
             break;
         default:
             break;

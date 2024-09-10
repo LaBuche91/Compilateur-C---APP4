@@ -304,6 +304,61 @@ Node *Instruction()
         accept(tok_pv);
         return R;
     }
+    else if(check(tok_if)){
+        accept(tok_parouv);
+        Node *R = Expression();
+        accept(tok_parfer);
+        Node *R1 = Instruction();
+        if(check(tok_else)){
+            Node *R2 = Instruction();
+            return CreerNode(Nd_cond, R->valeur, R, R1, R2);
+        }
+        return CreerNode(Nd_cond, R->valeur, R, R1);
+    }
+    else if(check(tok_while)){
+        accept(tok_parouv);
+        Node *E = Expression();
+        accept(tok_parfer);
+        Node *I = Instruction();
+        Node *loop = CreerNode(Nd_loop);
+        Node *condition= CreerNode(Nd_cond);
+        Node *b = CreerNode(Nd_break);
+        Node *ancre = CreerNode(Nd_ancre);
+        AjouterEnfant(condition, E);
+        AjouterEnfant(condition, I);
+        AjouterEnfant(condition, b);
+        AjouterEnfant(loop, ancre);
+        AjouterEnfant(loop, condition);
+        return loop;
+    }
+    else if(check(tok_do)){
+        Node *R1 = Instruction();
+        accept(tok_while);
+        accept(tok_parouv);
+        Node *R2 = Expression();
+        accept(tok_parfer);
+        accept(tok_pv);
+        return CreerNode(Nd_loop, R1->valeur, R1, R2);
+    }
+    else if(check(tok_for)){
+        accept(tok_parouv);
+        Node *R1 = Expression();
+        accept(tok_pv);
+        Node *R2 = Expression();
+        accept(tok_pv);
+        Node *R3 = Expression();
+        accept(tok_parfer);
+        Node *R4 = Instruction();
+        return CreerNode(Nd_loop, R1->valeur, R1, R2, R3, R4);
+    }
+    else if(check(tok_break)){
+        accept(tok_pv);
+        return CreerNode(Nd_break);
+    }
+    else if(check(tok_continue)){
+        accept(tok_pv);
+        return CreerNode(Nd_continue);
+    }
     else
     {
         Node *R = Expression();
