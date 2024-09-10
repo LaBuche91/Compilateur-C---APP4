@@ -346,14 +346,15 @@ void genCode(Node *N)
             break;
         case Nd_cond:
         {
-            genCode(N->enfants[0]);
-            cout << "  jumpf l1_"<<nbLabel << endl;
-            genCode(N->enfants[1]);
-            cout << "  jump l2_"<<nbLabel << endl;
-            cout << ".l1_"<<nbLabel << endl;
             int tmp = nbLabel++;
+            genCode(N->enfants[0]);
+            cout << "  jumpf l1_"<<tmp << endl;
+            genCode(N->enfants[1]);
+            int tmp2 = nbLabel++;
+            cout << "  jump l2_"<<tmp2 << endl;
+            cout << ".l1_"<<tmp << endl;
             if(N->Nenfants >= 3) genCode(N->enfants[2]);//problème ici
-            cout << ".l2_"<<tmp<< endl; 
+            cout << ".l2_"<<tmp2<< endl; 
             break;
         }
         case Nd_loop:
