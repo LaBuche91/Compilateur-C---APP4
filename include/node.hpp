@@ -42,6 +42,12 @@ enum NodeType
     Nd_break = 26,//sort de la loop
     Nd_continue = 27,//continue la loop
     Nd_ancre = 28, //sert revenir a un noeud lors d'un continue dans une boucle
+    Nd_fonction = 29,
+    Nd_ret = 30,
+    Nd_appel = 31,
+    Nd_adresse = 32,
+    Nd_indirection = 33,
+    Nd_seq = 34,
 };
 
 map<int, string> NodeNames = {
@@ -61,58 +67,21 @@ map<int, string> NodeNames = {
     {Nd_bloc, ""},       // car juste enchainement d'instruction
     {Nd_drop, "drop 1"}, // drop 1 pour le moment
     {Nd_debug, "dbg"},
+    {Nd_ret, "ret"},
 };
 
 enum TokenType
 {
-    tok_eof = 1,
-    tok_ident = 2,
-    tok_constante = 3,
-    tok_plus = 4,
-    tok_moin = 5,
-    tok_mult = 6,
-    tok_div = 7,
-    tok_not = 8,
-    tok_and = 9,
-    tok_or = 10,
-    tok_egal = 11,
-    tok_diff = 12,
-    tok_inf = 13,
-    tok_infeg = 14,
-    tok_sup = 15,
-    tok_supeg = 16,
-    tok_affect = 17,
-    tok_pv = 18,
-    tok_virg = 19,
-    tok_parouv = 20,
-    tok_parfer = 21,
-    tok_accolouv = 22,
-    tok_accolfer = 23,
-    tok_mod = 24,
-    tok_if = 25,
-    tok_else = 26,
-    tok_while = 27,
-    tok_for = 28,
-    tok_do = 29,
-    tok_break = 30,
-    tok_continue = 31,
-    tok_return = 32,
-    tok_int = 33,
-    tok_char = 34,
-    tok_bool = 35,
-    tok_string = 36,
-    tok_void = 37,
-    tok_main = 38,
-    tok_cin = 39,
-    tok_cout = 40,
-    tok_include = 41,
-    tok_namespace = 42,
-    tok_std = 43,
-    tok_using = 44,
-    tok_end = 45,
-    tok_true = 46,
-    tok_false = 47,
-    tok_debug = 48
+    tok_eof = 1, tok_ident = 2, tok_constante = 3, tok_plus = 4, tok_moin = 5, 
+    tok_mult = 6, tok_div = 7, tok_not = 8, tok_and = 9, tok_or = 10, tok_egal = 11, 
+    tok_diff = 12, tok_inf = 13, tok_infeg = 14, tok_sup = 15, tok_supeg = 16, 
+    tok_affect = 17, tok_pv = 18, tok_virg = 19, tok_parouv = 20, tok_parfer = 21, 
+    tok_accolouv = 22, tok_accolfer = 23, tok_mod = 24, tok_if = 25, tok_else = 26, 
+    tok_while = 27, tok_for = 28, tok_do = 29, tok_break = 30, tok_continue = 31, 
+    tok_return = 32, tok_int = 33, tok_char = 34, tok_bool = 35, tok_string = 36, 
+    tok_void = 37, tok_cin = 38, tok_cout = 39, tok_include = 40, 
+    tok_namespace = 41, tok_std = 42, tok_using = 43, tok_end = 44, tok_true = 45, 
+    tok_false = 46, tok_debug = 47, tok_crochetouv = 48, tok_crochetfer = 49
 };
 
 // structure ExpressionType
@@ -307,7 +276,7 @@ void AjouterEnfant(Node *N, Node *enfant)
 
 void genCode(Node *N)
 {
-    if (N->type == Nd_plus || N->type == Nd_mul || N->type == Nd_div || N->type == Nd_mod || N->type == Nd_minus_operation || N->type == Nd_less_operation || N->type == Nd_less_or_equal_operation || N->type == Nd_equal_operation || N->type == Nd_not_equal_operation || N->type == Nd_greater_operation || N->type == Nd_greater_or_equal_operation || N->type == Nd_and_operation || N->type == Nd_or_operation || N->type == Nd_bloc || N->type == Nd_drop || N->type == Nd_debug)
+    if (N->type == Nd_plus || N->type == Nd_mul || N->type == Nd_div || N->type == Nd_mod || N->type == Nd_minus_operation || N->type == Nd_less_operation || N->type == Nd_less_or_equal_operation || N->type == Nd_equal_operation || N->type == Nd_not_equal_operation || N->type == Nd_greater_operation || N->type == Nd_greater_or_equal_operation || N->type == Nd_and_operation || N->type == Nd_or_operation || N->type == Nd_bloc || N->type == Nd_drop || N->type == Nd_debug || N->type == Nd_ret || N->type == Nd_seq)
     {
         for (int i = 0; i < N->Nenfants; i++) // Use N->Nenfants instead of N->enfants.size()
         {
@@ -328,9 +297,20 @@ void genCode(Node *N)
             cout << "  get " << N->position << endl;
             break;
         case Nd_affecter_unaire:
-            genCode(N->enfants[1]);
-            cout << "  dup" << endl;
-            cout << "  set " << N->enfants[0]->position << endl;
+            if(N->enfants[0]->type == Nd_ref)
+            {
+                genCode(N->enfants[1]);
+                cout << "  dup" << endl;
+                cout << "  set " << N->enfants[0]->position << endl;
+            }
+            //NEW
+            else if(N->enfants[0]->type == Nd_indirection)
+            {
+                genCode(N->enfants[0]->enfants[0]);
+                genCode(N->enfants[1]);
+                cout << "  write" << endl;
+            }
+            //END NEW
             break;
         case Nd_const:
             cout << "  push " << N->valeur << endl;
@@ -353,7 +333,7 @@ void genCode(Node *N)
             int tmp2 = nbLabel++;
             cout << "  jump l2_"<<tmp2 << endl;
             cout << ".l1_"<<tmp << endl;
-            if(N->Nenfants >= 3) genCode(N->enfants[2]);//problème ici
+            if(N->Nenfants >= 3) genCode(N->enfants[2]);
             cout << ".l2_"<<tmp2<< endl; 
             break;
         }
@@ -381,6 +361,41 @@ void genCode(Node *N)
         case Nd_continue:
             cout << "  jump l3_"<<labelBoucles<< endl;
             break;
+        case Nd_ret:
+            genCode(N->enfants[0]);
+            cout << "  ret" << endl;
+            break;
+        case Nd_appel:
+            cout<<"  prep " << N->enfants[0]->valeur << endl;
+            for (int i = 1; i < N->Nenfants; i++)
+            {
+                genCode(N->enfants[i]);
+            }
+            cout << "  call " << N->Nenfants -1 << endl;
+            break;
+        case Nd_fonction:
+            cout<<"."<<N->valeur<<endl;
+            //on reserve la place pour les variables 
+            cout<<"  resn " << N->position << endl;
+            //cout<<"genCode(N->enfants[0]);"<<endl;
+            genCode(N->enfants[N->Nenfants-1]);
+            cout<<"  push 0"<<endl;
+            cout<<"  ret"<<endl;
+            break;
+        //NEW
+        case Nd_indirection:
+            genCode(N->enfants[0]);
+            cout<<"  read"<<endl;
+            break;
+        case Nd_adresse:
+            cout<<"  prep.start"<<endl;
+            cout<<"  swap"<<endl;
+            cout<<"  pop 1"<<endl;
+            //attention position ????????
+            cout<<"  push "<<N->enfants[0]->position<<endl;
+            cout<<"  sub"<<endl;
+            break;
+        //END NEW
         default:
             break;
         }

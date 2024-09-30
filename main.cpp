@@ -17,8 +17,7 @@ Node *A;
 static int cptVariables = 0;
 
 // mots clés du langage
-vector<string> mots_cles = {"if", "else", "while", "for", "do", "break", "continue", "return", "int", "char", "bool", "string", "void", "main", "cin", "cout", "include", "namespace", "std", "using", "end", "true", "false", "debug"};
-
+vector<string> mots_cles = {"if", "else", "while", "for", "do", "break", "continue", "return", "int", "char", "bool", "string", "void", "cin", "cout", "include", "namespace", "std", "using", "end", "true", "false", "debug"};
 //-----------------------------ANALYSE LEXICALE--------------------------------
 // ' ', '\t', '\n', '\r', '\0', '+', '-', '*', '/', '!', '&', '|', '=', '<', '>', ';', ',', '(', ')', '%', '{', '}'
 Token lireToken()
@@ -37,6 +36,7 @@ Token lireToken()
     if (c == '\0')
     {
         T.type = tok_eof;
+        //cout << "EOF" << endl;
         return T;
     }
     switch (c)
@@ -122,6 +122,14 @@ Token lireToken()
     case '}':
         T.type = tok_accolfer;
         break;
+    //NEW
+    case '[':
+        T.type = tok_crochetouv;
+        break;
+    case ']':
+        T.type = tok_crochetfer;
+        break;
+    //END NEW
     }
     if (c >= '0' && c <= '9')
     {
@@ -151,11 +159,13 @@ Token lireToken()
                 break;
             }
         }
+        //cout << "mot clé : " << T.valeurStr << endl;
     }
+    //cout << "Token : " << T.type << ":" << get_token_name(T.type) << " valStr:" << T.valeurStr << " valConst:" << T.valeurConst << " ligne:" << T.ligne << endl;
     return T;
 };
 
-//OK
+// OK
 void next()
 {
     L = T;
@@ -176,7 +186,7 @@ void accept(int type)
     if (T.type != type)
     {
         cout << "Erreur de syntaxe à la ligne" << T.ligne << endl;
-        cout<< "attendu : "<<get_token_name(type)<<" reçu : "<<get_token_name(T.type)<<endl;
+        cout << "attendu : " << get_token_name(type) << " reçu : " << get_token_name(T.type) << endl;
         exit(1);
     }
     next();
@@ -205,7 +215,7 @@ Node *Atom()
 {
     if (check(tok_constante))
     {
-        //cout << "ATOM1 => constante : " << L.valeurConst << endl;
+        // cout << "ATOM1 => constante : " << L.valeurConst << endl;
         A = CreerNode(Nd_const, to_string(L.valeurConst));
         return A;
     }
@@ -217,7 +227,7 @@ Node *Atom()
     }
     else if (check(tok_ident))
     {
-        //cout << "ATOM3 => ident : " << L.valeurStr << endl;
+        // cout << "ATOM3 => ident : " << L.valeurStr << endl;
         A = CreerNode(Nd_ref, L.valeurStr);
         return A;
     }
@@ -231,6 +241,24 @@ Node *Atom()
 Node *suffix()
 {
     A = Atom();
+    if(check(tok_parouv))
+    {
+        Node *appel = CreerNode(Nd_appel, A);
+        while (!check(tok_parfer))
+        {
+            Node *E = Expression();
+            AjouterEnfant(appel, E);
+            check(tok_virg);
+        }
+        return appel;
+    // NEW
+    } else if(check(tok_crochetouv)){ //LBracket
+        Node *enfants = CreerNode(Nd_plus, A, Expression());
+        A = CreerNode(Nd_indirection, enfants);
+        accept(tok_crochetfer);
+        check(tok_virg);
+    }
+    // END NEW
     return A;
 };
 
@@ -251,6 +279,18 @@ Node *prefix()
         A = prefix();
         return CreerNode(Nd_not_unaire, A->valeur, A);
     }
+    //NEW
+    else if(check(tok_and)) //si c'est un pointeur (adresse)
+    {
+        A = prefix();
+        return CreerNode(Nd_adresse, A->valeur, A);
+    }
+    else if(check(tok_mult)) //si c'est un pointeur (indirection)
+    {
+        A = prefix();
+        return CreerNode(Nd_indirection, A->valeur, A);
+    }
+    //END NEW
     else
     {
         A = suffix();
@@ -299,29 +339,35 @@ Node *Instruction()
     }
     else if (check(tok_int))
     {
-        accept(tok_ident);
+        //NEW
+        while (check(tok_mult)){}
+        //END NEW
+        accept(tok_ident);        
         Node *R = CreerNode(Nd_declaration, L.valeurStr);
         accept(tok_pv);
         return R;
     }
-    else if(check(tok_if)){
+    else if (check(tok_if))
+    {
         accept(tok_parouv);
         Node *R = Expression();
         accept(tok_parfer);
         Node *R1 = Instruction();
-        if(check(tok_else)){
+        if (check(tok_else))
+        {
             Node *R2 = Instruction();
             return CreerNode(Nd_cond, R->valeur, R, R1, R2);
         }
         return CreerNode(Nd_cond, R->valeur, R, R1);
     }
-    else if(check(tok_while)){
+    else if (check(tok_while))
+    {
         accept(tok_parouv);
         Node *E = Expression();
         accept(tok_parfer);
         Node *I = Instruction();
         Node *loop = CreerNode(Nd_loop);
-        Node *condition= CreerNode(Nd_cond);
+        Node *condition = CreerNode(Nd_cond);
         Node *b = CreerNode(Nd_break);
         Node *ancre = CreerNode(Nd_ancre);
         AjouterEnfant(condition, E);
@@ -331,33 +377,59 @@ Node *Instruction()
         AjouterEnfant(loop, condition);
         return loop;
     }
-    else if(check(tok_do)){
+    else if (check(tok_do))
+    {
         Node *R1 = Instruction();
         accept(tok_while);
         accept(tok_parouv);
         Node *R2 = Expression();
         accept(tok_parfer);
         accept(tok_pv);
-        return CreerNode(Nd_loop, R1->valeur, R1, R2);
+        Node *loop = CreerNode(Nd_loop);
+        Node *ancre = CreerNode(Nd_ancre);
+        Node *condition = CreerNode(Nd_cond);
+        Node *b = CreerNode(Nd_break);
+        Node *n = CreerNode(Nd_not_unaire);
+        AjouterEnfant(n, R2);
+        AjouterEnfant(condition, n);
+        AjouterEnfant(condition, b);
+        AjouterEnfant(loop, ancre);
+        AjouterEnfant(loop, R1);
+        AjouterEnfant(loop, condition);
+        return loop;
     }
-    else if(check(tok_for)){
+    else if (check(tok_for))
+    {
         accept(tok_parouv);
-        Node *R1 = Expression();
+        Node *E1 = Expression();
         accept(tok_pv);
-        Node *R2 = Expression();
+        Node *E2 = Expression();
         accept(tok_pv);
-        Node *R3 = Expression();
+        Node *E3 = Expression();
         accept(tok_parfer);
-        Node *R4 = Instruction();
-        return CreerNode(Nd_loop, R1->valeur, R1, R2, R3, R4);
+        Node *I = Instruction();
+        Node *ancre = CreerNode(Nd_ancre);
+        Node *b = CreerNode(Nd_break);
+        Node *cond = CreerNode(Nd_cond, E2->valeur, E2, I, b);
+        Node *loop=  CreerNode(Nd_loop, E1->valeur,cond, ancre , E3);
+        //cout << "loop : " << loop<< endl;
+        return CreerNode(Nd_seq, E1, loop);
     }
-    else if(check(tok_break)){
+    else if (check(tok_break))
+    {
         accept(tok_pv);
         return CreerNode(Nd_break);
     }
-    else if(check(tok_continue)){
+    else if (check(tok_continue))
+    {
         accept(tok_pv);
         return CreerNode(Nd_continue);
+    }
+    else if (check(tok_return))
+    {
+        Node *R = Expression();
+        accept(tok_pv);
+        return CreerNode(Nd_ret, R);
     }
     else
     {
@@ -369,7 +441,23 @@ Node *Instruction()
 
 Node *Fonction()
 {
-    return Instruction();
+    // fonction
+    accept(tok_int);
+    accept(tok_ident);
+    //cout<<"nom fonction : "<<L.valeurStr<<endl;
+    Node *R = CreerNode(Nd_fonction, L.valeurStr);
+    accept(tok_parouv);
+    while (!check(tok_parfer))
+    {
+        accept(tok_int);
+        accept(tok_ident);
+        Node *R2 = CreerNode(Nd_declaration, L.valeurStr);
+        AjouterEnfant(R, R2);
+        check(tok_virg);
+    }
+    Node *I = Instruction();
+    AjouterEnfant(R, I);
+    return R;
 };
 
 Node *AnaSyntaxique()
@@ -382,6 +470,7 @@ Node *AnaSemantique(Node *N)
     switch (N->type)
     {
     case Nd_bloc:
+        //cout << "bloc" << endl;
         begin();
         for (int i = 0; i < N->Nenfants; i++)
         {
@@ -408,7 +497,8 @@ Node *AnaSemantique(Node *N)
         break;
     }
     case Nd_affecter_unaire:
-        if (N->enfants[0]->type != Nd_ref)
+    {
+        if (N->enfants[0]->type != Nd_ref && N->enfants[0]->type != Nd_indirection)
         {
             cout << "Erreur sémentique : il faut une variable à gauche de l'affectation" << endl;
             exit(1);
@@ -417,8 +507,56 @@ Node *AnaSemantique(Node *N)
         {
             AnaSemantique(N->enfants[i]);
         }
+        break;
+    }
+    case Nd_fonction:
+    {
+        //cout << "fonction : " << N->valeur << endl; //debug
+        Symbole *s = declare(N->valeur); 
+        //cout<<"la"<<endl;
+        s->type = Nd_fonction;
+        begin();
+        cptVariables = 0;
+        for (int i = 0; i < N->enfants.size(); i++)
+        {
+            //cout<<"anaSemantique"<<endl;
+            AnaSemantique(N->enfants[i]);
+        }
+        end();
+        //cout<<"end"<<endl;
+        N->position = cptVariables - (N->enfants.size() - 1);
+        break;
+    }
+    case Nd_appel:
+    {
+        if (N->enfants[0]->type != Nd_ref)
+        {
+            cout << "Erreur sémentique : il faut une fonction à appeler" << endl;
+            exit(1);
+        }
+        Symbole *s = find(N->enfants[0]->valeur);
+        if (s->type != Nd_fonction)
+        {
+            cout << "Erreur sémentique : " << N->enfants[0]->valeur << " n'est pas une fonction" << endl;
+            exit(1);
+        }
+        for (int i = 1; i < N->enfants.size(); i++)
+        {
+            AnaSemantique(N->enfants[i]);
+        }
+        break;
+    }
+    //NEW
+    case Nd_adresse:
+        if(N->enfants[0]->type != Nd_ref)
+        {
+            cout << "Erreur sémentique : il faut une variable à prendre l'adresse" << endl;
+            exit(1);
+        }
+        break;
+    //END NEW
     default:
-        if (N->Nenfants > 0)
+        if (N->enfants.size() > 0)
         {
             for (int i = 0; i < N->Nenfants; i++)
             {
@@ -433,19 +571,24 @@ Node *AnaSemantique(Node *N)
 int main(int argc, char *argv[])
 {
     cout << ".start" << endl;
+    cout << "  prep main" << endl;
+    cout << "  call 0" << endl;
+    cout << "  halt" << endl;
     for (int i = 1; i < argc; i++)
     {
         analex(argv[i]);
+        begin();
         while (T.type != tok_eof)
         {
             Node *N = AnaSyntaxique();
-            AnaSemantique(N);
+            cptVariables = 0;
+            //cout << "anaSyntaxique" << endl;
+            AnaSemantique(N); //merde ici
             // N = Optim(N);
-            cout<<"resn "<<cptVariables<<endl;
+            cout << "resn " << cptVariables << endl; //quand j'enlève cette ligne ça marche mais le programme ne fait pas ce qui est voulu (erreur de segmentation)
             genCode(N);
-            cout<<"drop "<<cptVariables<<endl;
+            cout << "drop " << cptVariables << endl;
         }
+        end();
     }
-    // cout<<"dbg"<<endl;
-    cout << "halt" << endl;
 }
