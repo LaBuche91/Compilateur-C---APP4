@@ -443,6 +443,7 @@ Node *Fonction()
 {
     // fonction
     accept(tok_int);
+    while (check(tok_mult)){}
     accept(tok_ident);
     //cout<<"nom fonction : "<<L.valeurStr<<endl;
     Node *R = CreerNode(Nd_fonction, L.valeurStr);
@@ -450,6 +451,7 @@ Node *Fonction()
     while (!check(tok_parfer))
     {
         accept(tok_int);
+        while (check(tok_mult)){}
         accept(tok_ident);
         Node *R2 = CreerNode(Nd_declaration, L.valeurStr);
         AjouterEnfant(R, R2);
@@ -553,6 +555,7 @@ Node *AnaSemantique(Node *N)
             cout << "Erreur sémentique : il faut une variable à prendre l'adresse" << endl;
             exit(1);
         }
+        AnaSemantique(N->enfants[0]);
         break;
     //END NEW
     default:
@@ -583,10 +586,10 @@ int main(int argc, char *argv[])
             Node *N = AnaSyntaxique();
             cptVariables = 0;
             //cout << "anaSyntaxique" << endl;
-            AnaSemantique(N); //merde ici
-            // N = Optim(N);
+            AnaSemantique(N); 
+            Node *opti = Optimisation(N);
             cout << "resn " << cptVariables << endl; //quand j'enlève cette ligne ça marche mais le programme ne fait pas ce qui est voulu (erreur de segmentation)
-            genCode(N);
+            genCode(opti);
             cout << "drop " << cptVariables << endl;
         }
         end();

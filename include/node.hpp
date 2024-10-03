@@ -274,6 +274,83 @@ void AjouterEnfant(Node *N, Node *enfant)
     N->Nenfants++;
 };
 
+Node *Optimisation(Node *A){
+    for(int i = 0; i < A->Nenfants; i++){
+        A->enfants[i] = Optimisation(A->enfants[i]);
+    }
+    switch (A->type)
+    {
+    case Nd_plus:
+        if(A->enfants[0]->type == Nd_const && A->enfants[1]->type == Nd_const){
+            return CreerNode(Nd_const, to_string(stoi(A->enfants[0]->valeur) + stoi(A->enfants[1]->valeur)));
+        }
+        break;
+    case Nd_minus_operation:
+        if(A->enfants[0]->type == Nd_const && A->enfants[1]->type == Nd_const){
+            return CreerNode(Nd_const, to_string(stoi(A->enfants[0]->valeur) - stoi(A->enfants[1]->valeur)));
+        }
+        break;
+    case Nd_mul:
+        if(A->enfants[0]->type == Nd_const && A->enfants[1]->type == Nd_const){
+            return CreerNode(Nd_const, to_string(stoi(A->enfants[0]->valeur) * stoi(A->enfants[1]->valeur)));
+        }
+        break;
+    case Nd_div:
+        if(A->enfants[0]->type == Nd_const && A->enfants[1]->type == Nd_const){
+            return CreerNode(Nd_const, to_string(stoi(A->enfants[0]->valeur) / stoi(A->enfants[1]->valeur)));
+        }
+        break;
+    case Nd_mod:
+        if(A->enfants[0]->type == Nd_const && A->enfants[1]->type == Nd_const){
+            return CreerNode(Nd_const, to_string(stoi(A->enfants[0]->valeur) % stoi(A->enfants[1]->valeur)));
+        }
+        break;
+    case Nd_less_operation:
+        if(A->enfants[0]->type == Nd_const && A->enfants[1]->type == Nd_const){
+            return CreerNode(Nd_const, to_string(stoi(A->enfants[0]->valeur) < stoi(A->enfants[1]->valeur)));
+        }
+        break;
+    case Nd_less_or_equal_operation:
+        if(A->enfants[0]->type == Nd_const && A->enfants[1]->type == Nd_const){
+            return CreerNode(Nd_const, to_string(stoi(A->enfants[0]->valeur) <= stoi(A->enfants[1]->valeur)));
+        }
+        break;
+    case Nd_greater_operation:
+        if(A->enfants[0]->type == Nd_const && A->enfants[1]->type == Nd_const){
+            return CreerNode(Nd_const, to_string(stoi(A->enfants[0]->valeur) > stoi(A->enfants[1]->valeur)));
+        }
+        break;
+    case Nd_greater_or_equal_operation:
+        if(A->enfants[0]->type == Nd_const && A->enfants[1]->type == Nd_const){
+            return CreerNode(Nd_const, to_string(stoi(A->enfants[0]->valeur) >= stoi(A->enfants[1]->valeur)));
+        }
+        break;
+    case Nd_equal_operation:
+        if(A->enfants[0]->type == Nd_const && A->enfants[1]->type == Nd_const){
+            return CreerNode(Nd_const, to_string(stoi(A->enfants[0]->valeur) == stoi(A->enfants[1]->valeur)));
+        }
+        break;
+    case Nd_not_equal_operation:
+        if(A->enfants[0]->type == Nd_const && A->enfants[1]->type == Nd_const){
+            return CreerNode(Nd_const, to_string(stoi(A->enfants[0]->valeur) != stoi(A->enfants[1]->valeur)));
+        }
+        break;
+    case Nd_and_operation:
+        if(A->enfants[0]->type == Nd_const && A->enfants[1]->type == Nd_const){
+            return CreerNode(Nd_const, to_string(stoi(A->enfants[0]->valeur) && stoi(A->enfants[1]->valeur)));
+        }
+        break;
+    case Nd_or_operation:
+        if(A->enfants[0]->type == Nd_const && A->enfants[1]->type == Nd_const){
+            return CreerNode(Nd_const, to_string(stoi(A->enfants[0]->valeur) || stoi(A->enfants[1]->valeur)));
+        }
+        break;
+    default:
+        break;
+    }
+    return A;
+};
+
 void genCode(Node *N)
 {
     if (N->type == Nd_plus || N->type == Nd_mul || N->type == Nd_div || N->type == Nd_mod || N->type == Nd_minus_operation || N->type == Nd_less_operation || N->type == Nd_less_or_equal_operation || N->type == Nd_equal_operation || N->type == Nd_not_equal_operation || N->type == Nd_greater_operation || N->type == Nd_greater_or_equal_operation || N->type == Nd_and_operation || N->type == Nd_or_operation || N->type == Nd_bloc || N->type == Nd_drop || N->type == Nd_debug || N->type == Nd_ret || N->type == Nd_seq)
@@ -388,11 +465,11 @@ void genCode(Node *N)
             cout<<"  read"<<endl;
             break;
         case Nd_adresse:
-            cout<<"  prep.start"<<endl;
+            cout<<"  prep start"<<endl;
             cout<<"  swap"<<endl;
-            cout<<"  pop 1"<<endl;
+            cout<<"  drop 1"<<endl;
             //attention position ????????
-            cout<<"  push "<<N->enfants[0]->position<<endl;
+            cout<<"  push "<<N->enfants[0]->position +1 <<endl;
             cout<<"  sub"<<endl;
             break;
         //END NEW

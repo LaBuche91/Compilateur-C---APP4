@@ -1,0 +1,14 @@
+int main() {
+    int a; 
+    a = 20;
+    int *ptr;
+    ptr = &a;
+    int **ptr2; 
+    ptr2= &ptr;
+
+    debug a;
+    debug *ptr;
+    debug **ptr2;
+
+    return 0;
+}

@@ -7,4 +7,5 @@ int main()
         else {a = a-1;}
         debug a;
     }while(a>0);
+    return 0;
 }

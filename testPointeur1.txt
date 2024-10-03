@@ -1,0 +1,9 @@
+int main() {
+    int a;
+    a = 10;
+    int *ptr; 
+    ptr = &a;
+    debug a;
+    debug ptr;
+    return 0;
+}
