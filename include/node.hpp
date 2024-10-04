@@ -48,6 +48,8 @@ enum NodeType
     Nd_adresse = 32,
     Nd_indirection = 33,
     Nd_seq = 34,
+    Nd_recv = 35,
+    Nd_send = 36
 };
 
 map<int, string> NodeNames = {
@@ -81,7 +83,7 @@ enum TokenType
     tok_return = 32, tok_int = 33, tok_char = 34, tok_bool = 35, tok_string = 36, 
     tok_void = 37, tok_cin = 38, tok_cout = 39, tok_include = 40, 
     tok_namespace = 41, tok_std = 42, tok_using = 43, tok_end = 44, tok_true = 45, 
-    tok_false = 46, tok_debug = 47, tok_crochetouv = 48, tok_crochetfer = 49
+    tok_false = 46, tok_debug = 47, tok_crochetouv = 48, tok_crochetfer = 49, tok_recv = 50, tok_send = 51
 };
 
 // structure ExpressionType
@@ -383,8 +385,9 @@ void genCode(Node *N)
             //NEW
             else if(N->enfants[0]->type == Nd_indirection)
             {
-                genCode(N->enfants[0]->enfants[0]);
                 genCode(N->enfants[1]);
+                cout<< "  dup"<<endl;
+                genCode(N->enfants[0]->enfants[0]);
                 cout << "  write" << endl;
             }
             //END NEW
@@ -468,7 +471,6 @@ void genCode(Node *N)
             cout<<"  prep start"<<endl;
             cout<<"  swap"<<endl;
             cout<<"  drop 1"<<endl;
-            //attention position ????????
             cout<<"  push "<<N->enfants[0]->position +1 <<endl;
             cout<<"  sub"<<endl;
             break;

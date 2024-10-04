@@ -17,7 +17,7 @@ Node *A;
 static int cptVariables = 0;
 
 // mots clés du langage
-vector<string> mots_cles = {"if", "else", "while", "for", "do", "break", "continue", "return", "int", "char", "bool", "string", "void", "cin", "cout", "include", "namespace", "std", "using", "end", "true", "false", "debug"};
+vector<string> mots_cles = {"if", "else", "while", "for", "do", "break", "continue", "return", "int", "char", "bool", "string", "void", "cin", "cout", "include", "namespace", "std", "using", "end", "true", "false", "debug", "recv", "send"};
 //-----------------------------ANALYSE LEXICALE--------------------------------
 // ' ', '\t', '\n', '\r', '\0', '+', '-', '*', '/', '!', '&', '|', '=', '<', '>', ';', ',', '(', ')', '%', '{', '}'
 Token lireToken()
@@ -231,6 +231,10 @@ Node *Atom()
         A = CreerNode(Nd_ref, L.valeurStr);
         return A;
     }
+    else if(check(tok_recv)){
+        A = CreerNode(Nd_recv);
+        return A;
+    }
     else
     {
         cout << "Erreur de syntaxe à la ligne " << T.ligne << endl;
@@ -253,8 +257,11 @@ Node *suffix()
         return appel;
     // NEW
     } else if(check(tok_crochetouv)){ //LBracket
-        Node *enfants = CreerNode(Nd_plus, A, Expression());
-        A = CreerNode(Nd_indirection, enfants);
+        //cout << "LBracket" << endl;
+        Node *plus = CreerNode(Nd_plus, A);
+        Node *E = Expression();
+        AjouterEnfant(plus, E);
+        A = CreerNode(Nd_indirection, plus);
         accept(tok_crochetfer);
         check(tok_virg);
     }
@@ -431,6 +438,11 @@ Node *Instruction()
         accept(tok_pv);
         return CreerNode(Nd_ret, R);
     }
+    else if(check (tok_recv)){
+        Node *R = Expression();
+        accept(tok_pv);
+        return CreerNode(Nd_recv, R);
+    }
     else
     {
         Node *R = Expression();
@@ -577,21 +589,22 @@ int main(int argc, char *argv[])
     cout << "  prep main" << endl;
     cout << "  call 0" << endl;
     cout << "  halt" << endl;
+    //begin ici pour les bibliothèque standard
+    begin();
     for (int i = 1; i < argc; i++)
     {
+        position = 0;
         analex(argv[i]);
-        begin();
         while (T.type != tok_eof)
         {
             Node *N = AnaSyntaxique();
             cptVariables = 0;
+            T.ligne = 1; // on remet la ligne à 1
             //cout << "anaSyntaxique" << endl;
             AnaSemantique(N); 
-            Node *opti = Optimisation(N);
-            cout << "resn " << cptVariables << endl; //quand j'enlève cette ligne ça marche mais le programme ne fait pas ce qui est voulu (erreur de segmentation)
-            genCode(opti);
-            cout << "drop " << cptVariables << endl;
+            N = Optimisation(N);
+            genCode(N);
         }
-        end();
     }
+    end(); //end pour bibliothèque standard
 }
