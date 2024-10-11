@@ -83,7 +83,8 @@ enum TokenType
     tok_return = 32, tok_int = 33, tok_char = 34, tok_bool = 35, tok_string = 36, 
     tok_void = 37, tok_cin = 38, tok_cout = 39, tok_include = 40, 
     tok_namespace = 41, tok_std = 42, tok_using = 43, tok_end = 44, tok_true = 45, 
-    tok_false = 46, tok_debug = 47, tok_crochetouv = 48, tok_crochetfer = 49, tok_recv = 50, tok_send = 51
+    tok_false = 46, tok_debug = 47, tok_recv = 48, tok_send = 49, tok_crochetouv = 50,
+    tok_crochetfer = 51
 };
 
 // structure ExpressionType
@@ -462,7 +463,6 @@ void genCode(Node *N)
             cout<<"  push 0"<<endl;
             cout<<"  ret"<<endl;
             break;
-        //NEW
         case Nd_indirection:
             genCode(N->enfants[0]);
             cout<<"  read"<<endl;
@@ -474,7 +474,12 @@ void genCode(Node *N)
             cout<<"  push "<<N->enfants[0]->position +1 <<endl;
             cout<<"  sub"<<endl;
             break;
-        //END NEW
+        case Nd_recv:
+            cout<<"  recv"<<endl;
+            break;
+        case Nd_send:
+            cout<<"  send"<<endl;
+            break;
         default:
             break;
         }

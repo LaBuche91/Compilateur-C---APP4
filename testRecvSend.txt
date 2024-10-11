@@ -1,0 +1,5 @@
+int main() {
+    read();
+    print(89);
+    return 0;
+}

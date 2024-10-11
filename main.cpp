@@ -199,7 +199,11 @@ void analex(string fileName)
     {
         // on extraie le code du fichier
         code = string((istreambuf_iterator<char>(file)), istreambuf_iterator<char>());
-        // code ="(3+1) * 2 - 10 / 5 % 2 + (4 && 1) || (!0) ==1 != 2 < 3 <=4 > 5 >= 6";
+        if (file.fail())
+        {
+            cout << "Erreur lors de la lecture du fichier" << endl;
+            exit(1);
+        }
         file.close();
         next();
     }
@@ -438,10 +442,10 @@ Node *Instruction()
         accept(tok_pv);
         return CreerNode(Nd_ret, R);
     }
-    else if(check (tok_recv)){
+    else if(check (tok_send)){
         Node *R = Expression();
         accept(tok_pv);
-        return CreerNode(Nd_recv, R);
+        return CreerNode(Nd_send, R);
     }
     else
     {

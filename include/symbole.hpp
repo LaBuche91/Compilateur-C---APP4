@@ -66,7 +66,7 @@ Symbole *find(string var)
         {
             if (pileSymbolesTemp.top().find(var) != pileSymbolesTemp.top().end())
             {
-                return &pileSymbolesTemp.top()[var];
+                return new Symbole(pileSymbolesTemp.top()[var]);
             }
             pileSymbolesTemp.pop();
         }
