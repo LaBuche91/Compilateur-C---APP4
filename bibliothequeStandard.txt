@@ -24,8 +24,8 @@ int read() {
     i = 0;
     while(1) {
         int c;
-        c = recv;
-        if (c == 10 || i >=29 ) {
+        c = recv();
+        if (c == 10 || i >= 29) {
             res[i] = 10;
             break;
         }

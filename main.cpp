@@ -237,6 +237,8 @@ Node *Atom()
     }
     else if(check(tok_recv)){
         A = CreerNode(Nd_recv);
+        accept(tok_parouv);
+        accept(tok_parfer);
         return A;
     }
     else

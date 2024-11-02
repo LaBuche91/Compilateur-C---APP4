@@ -1,7 +1,6 @@
 int main() {
     int c;
     c = read();
-    debug c;
     print(c);
 
     return 0;
