@@ -26,119 +26,114 @@
   push 0
   ret
 .print
-  resn 2
+  resn 1
   push 0
-  dup
-  set 2
-  drop 1
-  get 0
-  push 0
-  cmpeq
-  jumpf l1_0
-  send
-  push 0
-  ret
-  jump l2_1
-.l1_0
-.l2_1
-.l1_2
-.l3_2
-  get 0
-  push 0
-  cmpgt
-  jumpf l1_3
-  get 2
-  push 10
-  mul
-  get 0
-  push 10
-  mod
-  add
-  dup
-  set 2
-  drop 1
-  get 0
-  push 10
-  div
-  dup
-  set 0
-  drop 1
-  jump l2_4
-.l1_3
-  jump l2_2
-.l2_4
-  jump l1_2
-.l2_2
-.l1_5
-.l3_5
-  get 2
-  push 0
-  cmpgt
-  jumpf l1_6
-  get 2
-  push 10
-  mod
   dup
   set 1
   drop 1
+.l1_0
+.l3_0
+  push 1
+  jumpf l1_1
   send
-  get 2
+  get 0
+  get 1
+  add
+  read
   push 10
-  div
+  cmpeq
+  jumpf l1_2
+  jump l2_0
+  jump l2_3
+.l1_2
+.l2_3
+  get 1
+  push 1
+  add
   dup
-  set 2
+  set 1
   drop 1
-  jump l2_7
-.l1_6
-  jump l2_5
-.l2_7
-  jump l1_5
-.l2_5
-  push 0
-  ret
+  jump l2_4
+.l1_1
+  jump l2_0
+.l2_4
+  jump l1_0
+.l2_0
   push 0
   ret
 .read
-  resn 2
-  push 0
+  resn 3
+  prep malloc
+  push 30
+  call 1
   dup
   set 0
   drop 1
-  recv
-  drop 1
   push 0
-  read
   dup
   set 1
   drop 1
-  get 1
-  push 48
-  cmpge
-  get 1
-  push 57
-  cmple
-  and
-  jumpf l1_8
-  get 1
-  push 48
-  sub
+.l1_5
+.l3_5
+  push 1
+  jumpf l1_6
+  recv
   dup
-  set 0
+  set 2
+  drop 1
+  get 2
+  push 10
+  cmpeq
+  get 1
+  push 29
+  cmpge
+  or
+  jumpf l1_7
+  push 10
+  dup
+  get 0
+  get 1
+  add
+  write
+  drop 1
+  jump l2_5
+  jump l2_8
+.l1_7
+.l2_8
+  get 2
+  dup
+  get 0
+  get 1
+  add
+  write
+  drop 1
+  get 1
+  push 1
+  add
+  dup
+  set 1
   drop 1
   jump l2_9
-.l1_8
+.l1_6
+  jump l2_5
 .l2_9
+  jump l1_5
+.l2_5
   get 0
   ret
   push 0
   ret
 .main
-  resn 0
+  resn 1
   prep read
   call 0
+  dup
+  set 0
   drop 1
+  get 0
+  dbg
   prep print
-  push 89
+  get 0
   call 1
   drop 1
   push 0

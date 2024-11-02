@@ -7,36 +7,30 @@ int malloc(int n) {
 int free(int p) {
 }
 int print(int n) {
-    int digit;
-    int reversed;
-    reversed = 0;
-
-    if (n == 0) {
-        send 48;
-        return 0;
+    int i;
+    i = 0;
+    while(1) {
+        send n[i];
+        if (n[i] == 10) {
+            break;
+        }
+        i = i + 1;
     }
-    while (n > 0) {
-        reversed = reversed * 10 + (n % 10);
-        n = n / 10;
-    }
-    while (reversed > 0) {
-        digit = reversed % 10;
-        send digit + 48;
-        reversed = reversed / 10;
-    }
-
-    return 0;
 }
 int read() {
-    int value;
-    value = 0;
-    int input;
-
-    recv;
-    input = *0;
-
-    if (input >= 48 && input <= 57) {
-        value = input - 48;
+    int res;
+    res = malloc(30);
+    int i;
+    i = 0;
+    while(1) {
+        int c;
+        c = recv;
+        if (c == 10 || i >=29 ) {
+            res[i] = 10;
+            break;
+        }
+        res[i] = c;
+        i = i + 1;
     }
-    return value;
+    return res;
 }

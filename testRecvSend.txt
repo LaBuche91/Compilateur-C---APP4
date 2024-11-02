@@ -1,5 +1,8 @@
 int main() {
-    read();
-    print(89);
+    int c;
+    c = read();
+    debug c;
+    print(c);
+
     return 0;
 }
