@@ -1,11 +1,45 @@
-int plus(int a, int b){
-    return a+b;
+int plus(int a, int b) {
+    return a + b;
 }
-int main(){
+
+int multiply(int a, int b) {
+    return a * b;
+}
+
+int factorial(int n) {
+    if (n <= 1) {
+        return 1;
+    } else {
+        return n * factorial(n - 1);
+    }
+}
+
+int test_function_calls() {
     int a;
     int b;
-    a=2;
-    b=1;
-    debug plus(a,plus(a,b));
+    a = 2;
+    b = 1;
+    debug plus(a, plus(a, b));
+}
+
+int test_imbrication() {
+    int a ;
+    a = 3;
+    int b ;
+    b = 4;
+    debug multiply(a, plus(a, b));
+}
+
+int test_recursion() {
+    int n ;
+    n = 5;
+    debug factorial(n);
+}
+
+int main() {
+    test_function_calls();
+    test_imbrication();
+    test_recursion();
+
     return 0;
 }

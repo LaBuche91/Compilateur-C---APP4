@@ -1,0 +1,11 @@
+int main()
+{
+    int a;
+    a=20;
+    do{
+        if(a<10){ a=0;}
+        else {a = a-1;}
+        debug a;
+    }while(a>0);
+    return 0;
+}

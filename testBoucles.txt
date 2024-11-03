@@ -1,0 +1,109 @@
+
+int main() {
+    int nextTest;
+    nextTest = 9999999;
+
+    int a;
+    a = 20;
+    while (a > 0) {
+        if (a <= 10) {
+            a = 0;
+        } else {
+            a = a - 1;
+        }
+        debug a;
+    }
+
+    debug nextTest;
+
+    int i;
+    for (i = 0; i < 5; i = i + 1) {
+        debug i;
+    }
+    
+    debug nextTest;
+
+    for (i = 0; i < 5; i = i + 1) {
+        if (i == 2) {
+            continue;
+        }
+        debug i;
+    }
+
+    debug nextTest;
+
+    a = 0;
+    for (a; a < 10; a = a + 1) {
+        if (a == 5) {
+            break;
+        }
+        debug a;
+    }
+
+    debug nextTest;
+
+    for (i = 0; i < 3; i = i + 1) {
+        int j;
+        for (j = 0; j < 2; j = j + 1) {
+            debug i * j;
+        }
+    }
+    
+    debug nextTest;
+
+    a = 10;
+    while (a > 0) {
+        debug a;
+        a = a - 2;
+    }
+
+    debug nextTest;
+
+    for (i = 0; i < 10; i = i + 1) {
+        if (i % 2 == 0) {
+            i = i + 1;
+        }
+        debug i;
+    }
+
+    debug nextTest;
+
+    for (i = 0; i < 3; i = i + 1) {
+        int j;
+        for (j = 0; j < 3; j = j + 1) {
+            if (j == 1) {
+                continue;
+            }
+            debug i * j;
+        }
+    }
+
+    debug nextTest;
+
+    for (i = 0; i < 5; i = i + 1) {
+        if (i == 3) {
+            i = i + 2;
+        }
+        debug i;
+    }
+
+    debug nextTest;
+
+    a = 5;
+    do {
+        debug a; 
+        a = a - 1;
+    } while (a > 0);
+
+    debug nextTest;
+
+    a = 0;
+    do {
+        debug a;
+        a = a + 1;
+    } while (a < 0);
+
+    debug nextTest;
+
+    return 0;
+}

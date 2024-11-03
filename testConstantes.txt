@@ -1,0 +1,6 @@
+int main(){
+    int b;
+    b=8;
+    debug b;
+    return 0;
+}

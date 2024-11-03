@@ -1,0 +1,74 @@
+int testPortee(int global) {
+    int localVar;
+    localVar = 5; 
+    debug localVar;
+
+    localVar = 15; 
+    debug localVar;
+
+    debug global;
+}
+
+int testShadowing(int global) {
+    int global;
+    global = 20; 
+    debug global; 
+
+    {
+        int global; 
+        global = 30; 
+        debug global; 
+    }
+
+    debug global; 
+}
+
+int testReassignment(int global) {
+    int a; 
+    a = 5; 
+    debug a; 
+
+    a = 10; 
+    debug a; 
+}
+
+int testArrayscope(int global) {
+    int arr;
+    arr = malloc(3);
+    arr[0] = 1; 
+    arr[1] = 2; 
+    arr[2] = 3;
+    int i;
+    for (i = 0; i < 3; i = i + 1) {
+        debug arr[i]; 
+    }
+}
+
+int function() {
+    int x; 
+    x = 1; 
+    debug x; 
+}
+
+int main() {
+    int global; 
+    global = 10;
+
+    testPortee(global);
+    testShadowing(global);
+    testReassignment(global);
+    testArrayscope(global);
+
+    {
+        int blockvar; 
+        blockvar = 100; 
+        debug blockvar; 
+    }
+
+    int x; 
+    x = 0; 
+    function();
+    debug x; 
+
+    return 0;
+}

@@ -6,7 +6,7 @@ int malloc(int n) {
 }
 int free(int p) {
 }
-int print(int n) {
+int print(int *n) {
     int i;
     i = 0;
     while(1) {
@@ -17,14 +17,14 @@ int print(int n) {
         i = i + 1;
     }
 }
-int read() {
-    int res;
+int *read() {
+    int *res;
     res = malloc(30);
     int i;
     i = 0;
     while(1) {
         int c;
-        c = recv();
+        c = recv;
         if (c == 10 || i >= 29) {
             res[i] = 10;
             break;
