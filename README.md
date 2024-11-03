@@ -20,4 +20,4 @@ Pour retirer les optimisations, il suffit de commenter la ligne 611 dans le fich
 ---------------------------------------
 
 ATTENTION :
-    Lors d'une erreur de compilation, le compilateur indique la ligne de l'erreur en considérant la ligne de déclaration de la dernière fonction en traitement comme étant la ligne 1. (ligne 1 = de la dernière fonction déclarer en traitement)
+    Lors d'une erreur de compilation, le compilateur indique la ligne de l'erreur en considérant la ligne de déclaration de la dernière fonction en traitement comme étant la ligne 1. (ligne 1 = ligne de la dernière fonction déclarer en traitement)
